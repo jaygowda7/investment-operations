@@ -1,0 +1,15 @@
+package com.iomp.investment.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/portfolios")
+public class PortfolioController {
+	
+	@GetMapping("/hello")
+    public String hello() {
+        return "Investment Operations Platform is running";
+    }
+}
