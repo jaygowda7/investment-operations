@@ -87,6 +87,41 @@ public class PortfolioService {
 		return response;
 	}
 	
+	public PortfolioResponse updatePortfolio(long id,PortfolioRequest request) {
+		
+		Portfolio portfolio =  portfolioRepository.findById(id)
+		        .orElseThrow(() ->
+                new PortfolioNotFoundException(
+                        "Portfolio not found with id: " + id
+                ));
+		
+		portfolio.setOwnerName(request.getOwnerName());
+		portfolio.setPortfolioName(request.getPortfolioName());
+		
+		Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
+
+	    PortfolioResponse response = new PortfolioResponse();
+
+	    response.setId(updatedPortfolio.getId());
+	    response.setPortfolioName(updatedPortfolio.getPortfolioName());
+	    response.setOwnerName(updatedPortfolio.getOwnerName());
+	    response.setStatus(updatedPortfolio.getStatus().name());
+	    response.setCreatedAt(updatedPortfolio.getCreatedAt());
+
+	    return response;
+	}
+	
+	public String deletePortfolio(Long id) {
+		
+		Portfolio portfolio =  portfolioRepository.findById(id)
+		        .orElseThrow(() ->
+                new PortfolioNotFoundException(
+                        "Portfolio not found with id: " + id
+                ));
+		portfolioRepository.deleteById(id);
+		return "Porfolio deleted successfully";
+
+	}
 	
 
 }

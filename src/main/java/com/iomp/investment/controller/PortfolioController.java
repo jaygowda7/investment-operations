@@ -2,9 +2,11 @@ package com.iomp.investment.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +39,13 @@ public class PortfolioController {
 		return portfolioService.createPortfolio(request);
 	}
 	
+	@PutMapping("/{id}")
+	public PortfolioResponse updatePortfolio(@PathVariable Long id,@Valid @RequestBody PortfolioRequest request) {
+		
+		return portfolioService.updatePortfolio(id, request);
+
+	}
+	
 	@GetMapping
 	public List<PortfolioResponse> fetchAllPortfolios() {
 		
@@ -47,5 +56,12 @@ public class PortfolioController {
 	public PortfolioResponse fetchPortfolioById(@PathVariable Long id) {
 		
 		return portfolioService.getPortfolioById(id);
+	}
+	
+	@DeleteMapping("/{id}")
+	public String deletePortfolio(@PathVariable Long id) {
+		
+		return portfolioService.deletePortfolio(id);
+
 	}
 }
