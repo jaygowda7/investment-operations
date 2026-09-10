@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.iomp.investment.dto.PortfolioRequest;
 import com.iomp.investment.dto.PortfolioResponse;
+import com.iomp.investment.enums.PortfolioStatus;
 import com.iomp.investment.exception.PortfolioNotFoundException;
 import com.iomp.investment.model.Portfolio;
-import com.iomp.investment.model.PortfolioStatus;
 import com.iomp.investment.repository.PortfolioRepository;
 
 @Service
@@ -28,23 +28,11 @@ public class PortfolioService {
 	
 	public PortfolioResponse createPortfolio(PortfolioRequest request) {
 
-	    Portfolio portfolio = new Portfolio();
-
-	    portfolio.setPortfolioName(request.getPortfolioName());
-	    portfolio.setOwnerName(request.getOwnerName());
-	    portfolio.setStatus(PortfolioStatus.ACTIVE);
-	    portfolio.setCreatedAt(LocalDate.now());
-
+	    Portfolio portfolio = requestToEntity(request);
+	    
 	    Portfolio savedPortfolio = portfolioRepository.save(portfolio);
-
-	    PortfolioResponse response = new PortfolioResponse();
-
-	    response.setId(savedPortfolio.getId());
-	    response.setPortfolioName(savedPortfolio.getPortfolioName());
-	    response.setOwnerName(savedPortfolio.getOwnerName());
-	    response.setStatus(savedPortfolio.getStatus().name());
-	    response.setCreatedAt(savedPortfolio.getCreatedAt());
-
+	    
+	    PortfolioResponse response = entityToResponse(savedPortfolio);
 	    return response;
 	}
 	
@@ -52,37 +40,20 @@ public class PortfolioService {
 		
 		return portfolioRepository.findAll()
 	            .stream()
-	            .map(portfolio -> {
-
-	                PortfolioResponse response = new PortfolioResponse();
-
-	                response.setId(portfolio.getId());
-	                response.setPortfolioName(portfolio.getPortfolioName());
-	                response.setOwnerName(portfolio.getOwnerName());
-	                response.setStatus(portfolio.getStatus().name());
-	                response.setCreatedAt(portfolio.getCreatedAt());
-
-	                return response;
-	            })
+	            .map(this::entityToResponse)
 	            .toList();
 		
 	}
 	
 	public PortfolioResponse getPortfolioById(long id) {
 		
-		Portfolio port = portfolioRepository.findById(id)
+		Portfolio portfolio = portfolioRepository.findById(id)
 		        .orElseThrow(() ->
 		                new PortfolioNotFoundException(
 		                        "Portfolio not found with id: " + id
 		                ));
 		
-		PortfolioResponse response = new PortfolioResponse();
-
-		response.setId(port.getId());
-		response.setPortfolioName(port.getPortfolioName());
-		response.setOwnerName(port.getOwnerName());
-		response.setStatus(port.getStatus().name());
-		response.setCreatedAt(port.getCreatedAt());
+		PortfolioResponse response = entityToResponse(portfolio);
 
 		return response;
 	}
@@ -100,14 +71,7 @@ public class PortfolioService {
 		
 		Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
 
-	    PortfolioResponse response = new PortfolioResponse();
-
-	    response.setId(updatedPortfolio.getId());
-	    response.setPortfolioName(updatedPortfolio.getPortfolioName());
-	    response.setOwnerName(updatedPortfolio.getOwnerName());
-	    response.setStatus(updatedPortfolio.getStatus().name());
-	    response.setCreatedAt(updatedPortfolio.getCreatedAt());
-
+	    PortfolioResponse response = entityToResponse(updatedPortfolio);
 	    return response;
 	}
 	
@@ -118,9 +82,35 @@ public class PortfolioService {
                 new PortfolioNotFoundException(
                         "Portfolio not found with id: " + id
                 ));
+		
 		portfolioRepository.deleteById(id);
-		return "Porfolio deleted successfully";
+		return "Portfolio deleted successfully";
 
+	}
+	
+	private PortfolioResponse entityToResponse(Portfolio portfolio) {
+		
+		PortfolioResponse response=new PortfolioResponse();
+		response.setId(portfolio.getId());
+	    response.setPortfolioName(portfolio.getPortfolioName());
+	    response.setOwnerName(portfolio.getOwnerName());
+	    response.setStatus(portfolio.getStatus().name());
+	    response.setCreatedAt(portfolio.getCreatedAt());
+
+	    return response;
+	}
+		
+	private Portfolio requestToEntity(PortfolioRequest request) {
+		
+		Portfolio portfolio = new Portfolio();
+		
+		portfolio.setPortfolioName(request.getPortfolioName());
+	    portfolio.setOwnerName(request.getOwnerName());
+	    portfolio.setStatus(PortfolioStatus.ACTIVE);
+	    portfolio.setCreatedAt(LocalDate.now());
+	    
+	    return portfolio;
+		
 	}
 	
 

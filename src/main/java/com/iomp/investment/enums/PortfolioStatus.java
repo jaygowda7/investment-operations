@@ -1,4 +1,4 @@
-package com.iomp.investment.model;
+package com.iomp.investment.enums;
 
 public enum PortfolioStatus {
 	ACTIVE,

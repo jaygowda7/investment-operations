@@ -1,8 +1,6 @@
 package com.iomp.investment.model;
 
-import java.time.LocalDate;
-
-import com.iomp.investment.enums.PortfolioStatus;
+import com.iomp.investment.enums.AssetType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,21 +12,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Getter
 @Setter
-public class Portfolio {
+@Getter
+public class Security {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private String portfolioName;
-
-    private String ownerName;
-
-    @Enumerated(EnumType.STRING)
-    private PortfolioStatus status;
-
-    private LocalDate createdAt;
-
+	private String symbol;
+	
+	private String name;
+	
+	@Enumerated(EnumType.STRING)
+	private AssetType assetType;
+	
 }

@@ -2,6 +2,8 @@ package com.iomp.investment.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,17 +28,11 @@ public class PortfolioController {
 	public PortfolioController(PortfolioService portfolioService) {
 		this.portfolioService=portfolioService;
 	}
-
-	
-	@GetMapping("/hello")
-    public String hello() {
-        return portfolioService.getMessage();
-    }
 	
 	@PostMapping
-	public PortfolioResponse createPortfolio( @Valid @RequestBody PortfolioRequest request) {
-		
-		return portfolioService.createPortfolio(request);
+	public ResponseEntity<PortfolioResponse> createPortfolio( @Valid @RequestBody PortfolioRequest request) {
+		PortfolioResponse response = portfolioService.createPortfolio(request);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 	
 	@PutMapping("/{id}")
@@ -59,9 +55,9 @@ public class PortfolioController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public String deletePortfolio(@PathVariable Long id) {
-		
-		return portfolioService.deletePortfolio(id);
+	public ResponseEntity<String> deletePortfolio(@PathVariable Long id) {
+		String response = portfolioService.deletePortfolio(id);
+		return ResponseEntity.ok(response);
 
 	}
 }
