@@ -15,7 +15,10 @@ import com.iomp.investment.repository.HoldingRepository;
 import com.iomp.investment.repository.PortfolioRepository;
 import com.iomp.investment.repository.SecurityRepository;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class HoldingService {
 	
 	private final PortfolioRepository portfolioRepository;
@@ -33,6 +36,8 @@ public class HoldingService {
 	
 	
 	public HoldingResponse addHolding(HoldingRequest holdingRequest) {
+		
+		log.info( "Adding holding: portfolioId={}, securityId={}", holdingRequest.getPortfolioId(), holdingRequest.getSecurityId() );
 
 	    Portfolio portfolio = portfolioRepository.findById(holdingRequest.getPortfolioId())
 	            .orElseThrow(() -> new PortfolioNotFoundException("Portfolio Not Found: "+ holdingRequest.getPortfolioId()));
@@ -46,12 +51,16 @@ public class HoldingService {
 	    Holding holding;
 	    if(existingHolding.isPresent()) {
 	    	
+	    	log.info( "Updating existing holding: portfolioId={}, securityId={}", holdingRequest.getPortfolioId(), holdingRequest.getSecurityId() );
+	    	
 	    	holding = existingHolding.get();
 		    holding.setQuantity(holding.getQuantity().add(holdingRequest.getQuantity()));
 		    
 		    holding = holdingRepository.save(holding);
 		    
 	    }else {
+	    	
+	    	log.info( "Creating new holding: portfolioId={}, securityId={}", holdingRequest.getPortfolioId(), holdingRequest.getSecurityId() );
 	    	
 	    	holding = new Holding();
 	    	

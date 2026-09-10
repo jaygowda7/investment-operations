@@ -10,7 +10,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import lombok.extern.log4j.Log4j2;
+
 @RestControllerAdvice
+@Log4j2
 public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -40,6 +43,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(PortfolioNotFoundException.class)
 	public ResponseEntity<ErrorResponse> handlePortfolioNotFound(
 	        PortfolioNotFoundException ex) {
+		
+		log.warn("Portfolio not found: {}", ex.getMessage());
 
 	    ErrorResponse response = new ErrorResponse();
 
@@ -54,6 +59,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(SecurityNotFoundException.class)
 	public ResponseEntity<ErrorResponse> handleSecurityNotFound(
 			SecurityNotFoundException ex) {
+		
+		log.warn("Security not found: {}", ex.getMessage());
 
 	    ErrorResponse response = new ErrorResponse();
 
@@ -68,6 +75,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(InsufficientHoldingException.class)
 	public ResponseEntity<ErrorResponse> handleInsufficientHolding(
 			InsufficientHoldingException ex) {
+		
+		log.warn("Insufficient holding: {}", ex.getMessage());
 
 	    ErrorResponse response = new ErrorResponse();
 
@@ -82,6 +91,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ObjectOptimisticLockingFailureException.class)
 	public ResponseEntity<ErrorResponse> handleOptimisticLockException(
 			ObjectOptimisticLockingFailureException ex) {
+		
+		log.warn(
+	            "Optimistic locking conflict: {}",
+	            ex.getMessage()
+	    );
 
 		ErrorResponse response = new ErrorResponse();
 
@@ -96,6 +110,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(IdempotencyKeyConflictException.class)
 	public ResponseEntity<ErrorResponse> handleIdempotencyKeyConflict(
 	        IdempotencyKeyConflictException ex) {
+		
+		log.warn(
+		        "Idempotency key conflict: {}",
+		        ex.getMessage()
+		);
 
 	    ErrorResponse error = new ErrorResponse();
 	    error.setStatus(HttpStatus.CONFLICT.value());
@@ -105,6 +124,25 @@ public class GlobalExceptionHandler {
 	    return ResponseEntity
 	            .status(HttpStatus.CONFLICT)
 	            .body(error);
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ErrorResponse> handleUnexpectedException(
+	        Exception ex) {
+
+	    log.error(
+	            "Unexpected application error",
+	            ex
+	    );
+
+	    ErrorResponse response = new ErrorResponse();
+
+	    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+	    response.setMessage("An unexpected error occurred");
+
+	    return ResponseEntity
+	            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+	            .body(response);
 	}
 
 }

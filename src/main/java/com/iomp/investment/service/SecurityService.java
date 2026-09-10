@@ -10,7 +10,10 @@ import com.iomp.investment.exception.SecurityNotFoundException;
 import com.iomp.investment.model.Security;
 import com.iomp.investment.repository.SecurityRepository;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class SecurityService {
 
     private final SecurityRepository securityRepository;
@@ -21,6 +24,12 @@ public class SecurityService {
     
     public SecurityResponse createSecurity(SecurityRequest request) {
     	
+    	log.info(
+                "Creating security: symbol={}, assetType={}",
+                request.getSymbol(),
+                request.getAssetType()
+        );
+    	
     	Security security = requestToEntity(request);
     	
     	security = securityRepository.save(security);
@@ -30,6 +39,8 @@ public class SecurityService {
     }
     
     public List<SecurityResponse> getSecurities(){
+    	
+    	log.info("Fetching all securities");
     	 return securityRepository.findAll().
     			 stream().
     			 map(this::entityToResponse).
@@ -37,6 +48,8 @@ public class SecurityService {
     }
     
     public SecurityResponse getSecurityById(long id) {
+    	
+    	log.info("Fetching security: securityId={}", id);
     	
     	Security security = securityRepository.findById(id).orElseThrow(() ->
                 new SecurityNotFoundException(

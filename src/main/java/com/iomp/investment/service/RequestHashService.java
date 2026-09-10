@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.iomp.investment.dto.TransactionRequest;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class RequestHashService {
 	
 	 public String generateHash(TransactionRequest request) {

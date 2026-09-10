@@ -10,9 +10,12 @@ import com.iomp.investment.model.Transaction;
 import com.iomp.investment.repository.IdempotencyRecordRepository;
 import com.iomp.investment.repository.TransactionRepository;
 
+import lombok.extern.log4j.Log4j2;
+
 
 
 @Service
+@Log4j2
 public class IdempotencyRecoveryService {
 	
 	 private final IdempotencyRecordRepository idempotencyRecordRepository;
@@ -48,6 +51,8 @@ public class IdempotencyRecoveryService {
         response.setTransactionType(transaction.getTransactionType());
         response.setQuantity(transaction.getQuantity());
         response.setTransactionDateTime(transaction.getTransactionDateTime());
+        
+        log.info( "Idempotency recovery successful: idempotencyKey={}, transactionId={}", idempotencyKey, transaction.getId() );
 
         return response;
     }

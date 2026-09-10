@@ -42,7 +42,7 @@ public class TransactionController {
     @ApiResponses({
         @ApiResponse(
             responseCode = "200",
-            description = "Transaction created successfully"
+            description ="Transaction created or existing transaction returned for the Idempotency-Key"
         ),
         @ApiResponse(
             responseCode = "400",

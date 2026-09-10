@@ -73,12 +73,13 @@ public class PortfolioController {
 	}
 	
 	@DeleteMapping("/{id}")
-	@Operation( summary = "Delete a portfolio", description = "Deletes an existing investment portfolio" ) 
-				@ApiResponses({ @ApiResponse( responseCode = "200", description = "Portfolio deleted successfully" ), 
-				@ApiResponse( responseCode = "404", description = "Portfolio not found" ) })
-	public ResponseEntity<String> deletePortfolio(@PathVariable Long id) {
-		String response = portfolioService.deletePortfolio(id);
-		return ResponseEntity.ok(response);
+	@Operation(summary = "Delete a portfolio",description = "Deletes an existing investment portfolio")
+				@ApiResponses({@ApiResponse(responseCode = "204",description = "Portfolio deleted successfully"),
+				@ApiResponse(responseCode = "404",description = "Portfolio not found")})
+	public ResponseEntity<Void> deletePortfolio(@PathVariable Long id) {
 
+	    portfolioService.deletePortfolio(id);
+
+	    return ResponseEntity.noContent().build();
 	}
 }

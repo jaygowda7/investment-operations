@@ -12,7 +12,10 @@ import com.iomp.investment.exception.PortfolioNotFoundException;
 import com.iomp.investment.model.Portfolio;
 import com.iomp.investment.repository.PortfolioRepository;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class PortfolioService {
 	
 	private final PortfolioRepository portfolioRepository;
@@ -27,6 +30,9 @@ public class PortfolioService {
 	}
 	
 	public PortfolioResponse createPortfolio(PortfolioRequest request) {
+		
+		log.info("Creating portfolio: portfolioName={}, ownerName={}",
+			    request.getPortfolioName(),request.getOwnerName());
 
 	    Portfolio portfolio = requestToEntity(request);
 	    
@@ -38,6 +44,8 @@ public class PortfolioService {
 	
 	public List<PortfolioResponse> getAllPortfolios(){
 		
+		log.info("Fetching all portfolios");
+		
 		return portfolioRepository.findAll()
 	            .stream()
 	            .map(this::entityToResponse)
@@ -46,6 +54,8 @@ public class PortfolioService {
 	}
 	
 	public PortfolioResponse getPortfolioById(long id) {
+		
+		log.info("Fetching portfolio: portfolioId={}", id);
 		
 		Portfolio portfolio = portfolioRepository.findById(id)
 		        .orElseThrow(() ->
@@ -59,6 +69,8 @@ public class PortfolioService {
 	}
 	
 	public PortfolioResponse updatePortfolio(long id,PortfolioRequest request) {
+		
+		log.info("Updating portfolio: portfolioId={}", id);
 		
 		Portfolio portfolio =  portfolioRepository.findById(id)
 		        .orElseThrow(() ->
@@ -75,7 +87,9 @@ public class PortfolioService {
 	    return response;
 	}
 	
-	public String deletePortfolio(Long id) {
+	public void deletePortfolio(Long id) {
+		
+		log.info("Deleting portfolio: portfolioId={}", id);
 		
 		Portfolio portfolio =  portfolioRepository.findById(id)
 		        .orElseThrow(() ->
@@ -84,7 +98,6 @@ public class PortfolioService {
                 ));
 		
 		portfolioRepository.deleteById(id);
-		return "Portfolio deleted successfully";
 
 	}
 	

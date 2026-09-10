@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
 import com.iomp.investment.dto.TransactionRequest;
@@ -39,9 +41,9 @@ public class TransactionControllerIntegrationTest {
 
     @Autowired
     private HoldingRepository holdingRepository;
-    
+
     @Test
-    void shouldHandleConcurrentTransactionRequests() {
+    void shouldHandleTransactionRequest() {
 
         Portfolio portfolio = new Portfolio();
         portfolio.setPortfolioName("Concurrency Test Portfolio");
@@ -51,14 +53,12 @@ public class TransactionControllerIntegrationTest {
 
         portfolio = portfolioRepository.saveAndFlush(portfolio);
 
-
         Security security = new Security();
         security.setSymbol("CONC");
         security.setName("Concurrency Test Security");
         security.setAssetType(AssetType.STOCK);
 
         security = securityRepository.saveAndFlush(security);
-
 
         Holding holding = new Holding();
         holding.setPortfolio(portfolio);
@@ -72,38 +72,65 @@ public class TransactionControllerIntegrationTest {
         Long holdingId = holding.getId();
 
         assertEquals(0L, holding.getVersion());
+
         TransactionRequest request = new TransactionRequest();
 
         request.setPortfolioId(portfolioId);
         request.setSecurityId(securityId);
         request.setTransactionType(TransactionType.BUY);
         request.setQuantity(new BigDecimal("50"));
-        
-        ResponseEntity<TransactionResponse> response = restTemplate.postForEntity(
-                "/api/transactions",
-                request,
-                TransactionResponse.class
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.set(
+                "Idempotency-Key",
+                "CONTROLLER-TEST-" + System.currentTimeMillis()
         );
-        
+
+        HttpEntity<TransactionRequest> entity =
+                new HttpEntity<>(request, headers);
+
+        ResponseEntity<TransactionResponse> response =
+                restTemplate.postForEntity(
+                        "/api/transactions",
+                        entity,
+                        TransactionResponse.class
+                );
+
         System.out.println("Status: " + response.getStatusCode());
         System.out.println("Body: " + response.getBody());
-        
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(50, response.getBody().getQuantity().intValue());
-        
-        Holding updatedHolding = holdingRepository.findById(holdingId).orElseThrow();
 
-        System.out.println("Holding Quantity: " + updatedHolding.getQuantity());
-        System.out.println("Holding Version: " + updatedHolding.getVersion());
+        assertEquals(200, response.getStatusCode().value());
+
+        assertEquals(
+                50,
+                response.getBody().getQuantity().intValue()
+        );
+
+        Holding updatedHolding =
+                holdingRepository
+                        .findById(holdingId)
+                        .orElseThrow();
+
+        System.out.println(
+                "Holding Quantity: "
+                        + updatedHolding.getQuantity()
+        );
+
+        System.out.println(
+                "Holding Version: "
+                        + updatedHolding.getVersion()
+        );
 
         assertEquals(
                 0,
-                new BigDecimal("150").compareTo(updatedHolding.getQuantity())
+                new BigDecimal("150")
+                        .compareTo(updatedHolding.getQuantity())
         );
 
-        assertEquals(1L, updatedHolding.getVersion());
+        assertEquals(
+                1L,
+                updatedHolding.getVersion()
+        );
     }
-    
-
-    
 }

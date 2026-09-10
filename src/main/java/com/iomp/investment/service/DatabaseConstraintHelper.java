@@ -4,7 +4,10 @@ import org.postgresql.util.PSQLException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class DatabaseConstraintHelper {
 
     private static final String HOLDING_UNIQUE_CONSTRAINT =

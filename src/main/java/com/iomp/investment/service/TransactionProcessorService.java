@@ -23,7 +23,10 @@ import com.iomp.investment.repository.PortfolioRepository;
 import com.iomp.investment.repository.SecurityRepository;
 import com.iomp.investment.repository.TransactionRepository;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class TransactionProcessorService {
 
     private final PortfolioRepository portfolioRepository;
@@ -73,6 +76,8 @@ public class TransactionProcessorService {
             if (holding.isPresent()) {
 
                 Holding existingHolding = holding.get();
+                
+                log.info( "Updating existing holding: portfolioId={}, securityId={}, operation=BUY", request.getPortfolioId(), request.getSecurityId() );
 
                 existingHolding.setQuantity(
                         existingHolding.getQuantity()
@@ -81,6 +86,8 @@ public class TransactionProcessorService {
                 holdingRepository.save(existingHolding);
 
             } else {
+            	
+            	log.info( "Creating new holding: portfolioId={}, securityId={}, operation=BUY", request.getPortfolioId(), request.getSecurityId() );
 
                 Holding newHolding = new Holding();
 
@@ -107,6 +114,8 @@ public class TransactionProcessorService {
                 throw new InsufficientHoldingException(
                         "Insufficient holding quantity");
             }
+            
+            log.info( "Reducing holding: portfolioId={}, securityId={}, operation=SELL", request.getPortfolioId(), request.getSecurityId() );
 
             existingHolding.setQuantity(
                     existingHolding.getQuantity()
@@ -132,6 +141,9 @@ public class TransactionProcessorService {
         record.setTransactionId(transaction.getId());
 
         idempotencyRecordRepository.saveAndFlush(record);
+        
+        log.info( "Transaction persisted successfully: transactionId={}, portfolioId={}, securityId={}, type={}", 
+        		transaction.getId(), request.getPortfolioId(), request.getSecurityId(), request.getTransactionType() );
 
         return mapToResponse(transaction);
     }
