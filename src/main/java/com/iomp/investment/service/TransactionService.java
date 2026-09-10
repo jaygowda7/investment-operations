@@ -21,19 +21,25 @@ public class TransactionService {
     private final RequestHashService requestHashService;
     private final TransactionProcessorService transactionProcessorService;
     private final IdempotencyRecoveryService idempotencyRecoveryService;
+    private final DatabaseConstraintHelper databaseConstraintHelper;
+    private final TransactionRetryService transactionRetryService;
 
     public TransactionService(
             IdempotencyRecordRepository idempotencyRecordRepository,
             TransactionRepository transactionRepository,
             RequestHashService requestHashService,
             TransactionProcessorService transactionProcessorService,
-            IdempotencyRecoveryService idempotencyRecoveryService) {
+            IdempotencyRecoveryService idempotencyRecoveryService,
+            DatabaseConstraintHelper databaseConstraintHelper,
+            TransactionRetryService transactionRetryService) {
 
         this.idempotencyRecordRepository = idempotencyRecordRepository;
         this.transactionRepository = transactionRepository;
         this.requestHashService = requestHashService;
         this.transactionProcessorService = transactionProcessorService;
         this.idempotencyRecoveryService = idempotencyRecoveryService;
+        this.databaseConstraintHelper=databaseConstraintHelper;
+        this.transactionRetryService=transactionRetryService;
     }
 
     public TransactionResponse createTransaction(
@@ -74,9 +80,23 @@ public class TransactionService {
                     request,
                     idempotencyKey,
                     requestHash);
-        } catch (DataIntegrityViolationException e) {
-            return idempotencyRecoveryService
-                    .recoverTransaction(idempotencyKey);
+        }catch (DataIntegrityViolationException e) {
+
+            if (databaseConstraintHelper.isHoldingUniqueConstraint(e)) {
+
+                return transactionRetryService.retryTransaction(
+                        request,
+                        idempotencyKey,
+                        requestHash);
+            }
+
+            if (databaseConstraintHelper.isIdempotencyUniqueConstraint(e)) {
+
+                return idempotencyRecoveryService
+                        .recoverTransaction(idempotencyKey);
+            }
+
+            throw e;
         }
     }
 
