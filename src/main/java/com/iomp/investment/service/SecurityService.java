@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import com.iomp.investment.dto.SecurityRequest;
 import com.iomp.investment.dto.SecurityResponse;
-import com.iomp.investment.exception.PortfolioNotFoundException;
 import com.iomp.investment.exception.SecurityNotFoundException;
 import com.iomp.investment.model.Security;
 import com.iomp.investment.repository.SecurityRepository;
